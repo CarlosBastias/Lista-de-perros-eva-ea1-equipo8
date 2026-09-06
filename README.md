@@ -114,7 +114,6 @@ Lista-de-perros/
 ├── index.js
 ├── style.css
 └── README.md
-
 ---
 
 ## 👥 Autores
