@@ -1,0 +1,37 @@
+name: CI
+
+# Se ejecuta con cada push a develop y con cada Pull Request hacia main.
+# Simula un pipeline básico de integración continua para un proyecto
+# frontend sin build (HTML/CSS/JS puro).
+on:
+  push:
+    branches: [develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  validar-proyecto:
+    name: Validar estructura y sintaxis
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Descargar código
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Verificar que existan los archivos base
+        run: |
+          test -f index.html
+          test -f index.js
+          test -f style.css
+          echo "✅ Estructura de archivos correcta"
+
+      - name: Verificar sintaxis de JavaScript
+        run: node --check index.js
+
+      - name: Verificar HTML con htmlhint
+        run: npx --yes htmlhint index.html
