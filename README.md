@@ -104,17 +104,20 @@ El job `validar-proyecto` hace lo siguiente:
 
 ---
 
+## 📁 Estructura de carpetas
+
+```
 Lista-de-perros/
 ├── .github/
-│ └── workflows/
-│ └── ci.yml
+│   └── workflows/
+│       └── ci.yml
 ├── index.html
 ├── index.js
 ├── style.css
 ├── .gitignore
 ├── .htmlhintrc
 └── README.md
-
+```
 ## 👥 Autores
 
 - Integrante 1 — Carlos Bastias
