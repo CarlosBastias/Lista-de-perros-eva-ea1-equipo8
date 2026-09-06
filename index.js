@@ -21,6 +21,12 @@ document.getElementById("dislike").addEventListener("click", () => {
 });
 document.getElementById("saltear").addEventListener("click", nuevoPerro);
 document.getElementById("reiniciar").addEventListener("click", reiniciarHistorial);
+
+// HOTFIX: se guarda un identificador de solicitud (requestId) para evitar que,
+// si el usuario hace clic en "Saltear" varias veces muy rápido, una respuesta
+// vieja de la API "gane la carrera" y deje el spinner o la imagen desincronizados.
+let requestId = 0;
+
 perroActualElement.addEventListener("load", () => {
   spinner.classList.toggle("escondido", true);
   perroActualElement.classList.toggle("escondido", false);
@@ -55,10 +61,16 @@ function reiniciarHistorial() {
 }
 
 async function nuevoPerro() {
+  const idDeEstaSolicitud = ++requestId; // HOTFIX: marca esta solicitud como la más reciente
   perroActualElement.classList.toggle("escondido", true);
   spinner.classList.toggle("escondido", false);
   const res = await fetch("https://dog.ceo/api/breeds/image/random");
   const jsonRes = await res.json();
+
+  // HOTFIX: si llegó una solicitud más nueva mientras esperábamos esta respuesta,
+  // se descarta el resultado actual para no pisar la imagen/spinner correctos.
+  if (idDeEstaSolicitud !== requestId) return;
+
   if (jsonRes.status === "success") {
     perroActual = jsonRes.message;
     perroActualElement.src = perroActual;
