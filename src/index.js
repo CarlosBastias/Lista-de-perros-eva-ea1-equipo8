@@ -25,6 +25,8 @@ document.getElementById("reiniciar").addEventListener("click", reiniciarHistoria
 // HOTFIX: se guarda un identificador de solicitud (requestId) para evitar que,
 // si el usuario hace clic en "Saltear" varias veces muy rápido, una respuesta
 // vieja de la API "gane la carrera" y deje el spinner o la imagen desincronizados.
+// La validación de si una solicitud sigue vigente ahora vive en perroLogica.js
+// (esSolicitudVigente) para poder testearla sin simular el navegador.
 let requestId = 0;
 
 perroActualElement.addEventListener("load", () => {
@@ -37,14 +39,14 @@ function rankearPerro(ranking) {
   nuevaImagen.src = perroActual;
   if (ranking === "+") {
     perrosLikeContainer.appendChild(nuevaImagen);
-    perrosLikeContainer.classList.toggle("escondido",false)
-    totalLikes++;
-    contadorLikesElement.textContent = `👍🏻 ${totalLikes}`;
+    perrosLikeContainer.classList.toggle("escondido", false);
+    totalLikes = incrementarContador(totalLikes);
+    contadorLikesElement.textContent = formatearContador("👍🏻", totalLikes);
   } else {
     perrosDislikeContainer.appendChild(nuevaImagen);
-    perrosDislikeContainer.classList.toggle("escondido",false)
-    totalDislikes++;
-    contadorDislikesElement.textContent = `👎🏻 ${totalDislikes}`;
+    perrosDislikeContainer.classList.toggle("escondido", false);
+    totalDislikes = incrementarContador(totalDislikes);
+    contadorDislikesElement.textContent = formatearContador("👎🏻", totalDislikes);
   }
   nuevoPerro();
 }
@@ -54,10 +56,11 @@ function reiniciarHistorial() {
   perrosDislikeContainer.innerHTML = "";
   perrosLikeContainer.classList.toggle("escondido", true);
   perrosDislikeContainer.classList.toggle("escondido", true);
-  totalLikes = 0;
-  totalDislikes = 0;
-  contadorLikesElement.textContent = `👍🏻 ${totalLikes}`;
-  contadorDislikesElement.textContent = `👎🏻 ${totalDislikes}`;
+  const iniciales = contadoresIniciales();
+  totalLikes = iniciales.likes;
+  totalDislikes = iniciales.dislikes;
+  contadorLikesElement.textContent = formatearContador("👍🏻", totalLikes);
+  contadorDislikesElement.textContent = formatearContador("👎🏻", totalDislikes);
 }
 
 async function nuevoPerro() {
@@ -69,9 +72,9 @@ async function nuevoPerro() {
 
   // HOTFIX: si llegó una solicitud más nueva mientras esperábamos esta respuesta,
   // se descarta el resultado actual para no pisar la imagen/spinner correctos.
-  if (idDeEstaSolicitud !== requestId) return;
+  if (!esSolicitudVigente(idDeEstaSolicitud, requestId)) return;
 
-  if (jsonRes.status === "success") {
+  if (respuestaExitosa(jsonRes)) {
     perroActual = jsonRes.message;
     perroActualElement.src = perroActual;
   } else {

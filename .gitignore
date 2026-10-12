@@ -8,9 +8,10 @@ desktop.ini
 .idea/
 *.swp
 
-# Dependencias (por si en algún feature se agrega tooling con npm)
+# Dependencias (el package-lock.json SÍ se versiona a propósito:
+# así "npm ci" en GitHub Actions instala siempre las mismas
+# versiones exactas, build reproducible)
 node_modules/
-package-lock.json
 
 # Archivos temporales
 *.log
